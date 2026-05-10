@@ -1,127 +1,152 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Produtos</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Times New Roman", serif;
-      background: #bfbfbf;
-    }
-    .container {
-      display: flex;
-      height: 100vh;
-    }
-    .panel {
-      border: 2px solid #000;
-      padding: 10px;
-      overflow: auto;
-    }
-    .left { width: 30%; background: #dcdcdc; }
-    .center { width: 40%; background: #e8e8e8; text-align: center; }
-    .right { width: 30%; background: #d0d0d0; }
-    .product-item {
-      border: 1px dashed #333;
-      margin: 8px 0;
-      padding: 6px;
-      cursor: pointer;
-      background: #f5f5f5;
-    }
-    .product-item:hover { background: #cfcfcf; }
-    img {
-      width: 200px;
-      height: 200px;
-      object-fit: cover;
-      border: 3px solid #000;
-    }
-    button {
-      margin-top: 20px;
-      padding: 12px;
-      font-size: 16px;
-      background: yellow;
-      border: 2px solid red;
-      cursor: pointer;
-    }
-    ul { padding-left: 20px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Produtos</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Times New Roman", serif;
+            background: #bfbfbf;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .panel {
+            border: 2px solid #000;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        .left {
+            width: 30%;
+            background: #dcdcdc;
+        }
+
+        .center {
+            width: 40%;
+            background: #e8e8e8;
+            text-align: center;
+        }
+
+        .right {
+            width: 30%;
+            background: #d0d0d0;
+        }
+
+        .product-item {
+            margin: 8px 0;
+            padding: 6px;
+        }
+
+        img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border: 3px solid #000;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px;
+            font-size: 16px;
+            background: yellow;
+            border: 2px solid red;
+            cursor: pointer;
+            color: white;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+    </style>
 </head>
+
 <body>
-  <div class="container">
-    <div class="panel left">
-      <h2>Produtos</h2>
-      <div id="product-list"></div>
+    <div class="container">
+        <div class="sub-container">
+            <div class="panel left">
+                <h2>Produtos</h2>
+                <div id="product-list"></div>
+            </div>
+
+            <div class="panel right">
+                <h2>Carrinho</h2>
+                <ul id="cart"></ul>
+            </div>
+        </div>
+
+        <div class="panel center">
+            <h2>Detalhes</h2>
+            <h3 id="name">Selecione um produto</h3>
+            <img id="image" src="" alt="" style="display:none;">
+            <p id="description"></p>
+            <p id="stock"></p>
+            <button id="addBtn" onclick="addToCart()" disabled>Adicionar no carrinho</button>
+        </div>
     </div>
 
-    <div class="panel center">
-      <h2>Detalhes</h2>
-      <h3 id="name">Selecione um produto</h3>
-      <img id="image" src="" alt="" style="display:none;">
-      <p id="description"></p>
-      <p id="stock"></p>
-      <button id="addBtn" onclick="addToCart()" disabled>Adicionar no carrinho</button>
-    </div>
+    <script src="./database.js"></script>
+    <script>
+        let selectedProduct = null;
 
-    <div class="panel right">
-      <h2>Carrinho</h2>
-      <ul id="cart"></ul>
-    </div>
-  </div>
+        function renderProducts() {
+            const list = document.getElementById('product-list');
+            list.innerHTML = '';
 
-  <script src="./database.js"></script>
-  <script>
-    let selectedProduct = null;
+            products.forEach((product, index) => {
+                const div = document.createElement('div');
+                div.className = 'product-item';
+                div.innerHTML = `<b>${product.name}</b><br>Quantidade: ${product.qty}`;
+                div.onclick = () => selectProduct(index);
+                list.appendChild(div);
+            });
+        }
 
-    function renderProducts() {
-      const list = document.getElementById('product-list');
-      list.innerHTML = '';
+        function selectProduct(index) {
+            selectedProduct = products[index];
+            document.getElementById('name').innerText = selectedProduct.name;
+            document.getElementById('description').innerText = selectedProduct.desc;
+            document.getElementById('stock').innerText = 'Itens disponíveis: ' + selectedProduct.qty;
+            const img = document.getElementById('image');
+            img.src = selectedProduct.img;
+            img.style.display = 'inline';
+            document.getElementById('addBtn').disabled = false;
+        }
 
-      products.forEach((product, index) => {
-        const div = document.createElement('div');
-        div.className = 'product-item';
-        div.innerHTML = `<b>${product.name}</b><br>Quantidade: ${product.qty}`;
-        div.onclick = () => selectProduct(index);
-        list.appendChild(div);
-      });
-    }
+        function addToCart() {
+            if (!selectedProduct) return;
 
-    function selectProduct(index) {
-      selectedProduct = products[index];
-      document.getElementById('name').innerText = selectedProduct.name;
-      document.getElementById('description').innerText = selectedProduct.desc;
-      document.getElementById('stock').innerText = 'Itens disponíveis: ' + selectedProduct.qty;
-      const img = document.getElementById('image');
-      img.src = selectedProduct.img;
-      img.style.display = 'inline';
-      document.getElementById('addBtn').disabled = false;
-    }
+            if (selectedProduct.qty <= 0) {
+                alert('Produto sem estoque!');
+                return;
+            }
 
-    function addToCart() {
-      if (!selectedProduct) return;
+            selectedProduct.qty--;
 
-      if (selectedProduct.qty <= 0) {
-        alert('Produto sem estoque!');
-        return;
-      }
+            const cart = document.getElementById('cart');
+            const item = document.createElement('li');
+            item.innerText = selectedProduct.name;
+            cart.appendChild(item);
 
-      selectedProduct.qty--;
+            document.getElementById('stock').innerText = 'Itens disponíveis: ' + selectedProduct.qty;
 
-      const cart = document.getElementById('cart');
-      const item = document.createElement('li');
-      item.innerText = selectedProduct.name;
-      cart.appendChild(item);
+            if (selectedProduct.qty <= 0) {
+                document.getElementById('addBtn').disabled = true;
+            }
 
-      document.getElementById('stock').innerText = 'Itens disponíveis: ' + selectedProduct.qty;
+            renderProducts();
+        }
 
-      if (selectedProduct.qty <= 0) {
-        document.getElementById('addBtn').disabled = true;
-      }
-
-      renderProducts();
-    }
-
-    renderProducts();
-  </script>
+        renderProducts();
+    </script>
 </body>
+
 </html>
